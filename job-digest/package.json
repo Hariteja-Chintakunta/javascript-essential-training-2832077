@@ -1,0 +1,22 @@
+{
+  "name": "pega-qa-job-digest",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Daily Outlook digest of Pega QA jobs from LinkedIn alerts",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "@azure/msal-node": "^7.0.1",
+    "@azure/msal-node-extensions": "^5.5.2",
+    "cheerio": "^1.2.0",
+    "dotenv": "^18.0.5"
+  },
+  "allowScripts": {
+    "keytar@7.9.0": true
+  }
+}
