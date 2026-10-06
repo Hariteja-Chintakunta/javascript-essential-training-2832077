@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pega QA Job Digest - Setup Guide</title>
+  <style>
+    :root {
+      color-scheme: light;
+      font-family: "Segoe UI", sans-serif;
+      color: #172b3a;
+      background: #fff;
+    }
+
+    * { box-sizing: border-box; }
+    body { margin: 0; font-size: 11pt; line-height: 1.48; }
+    .page { padding: 0.02in 0.02in 0.12in; }
+    .page + .page { margin-top: 16pt; }
+    .eyebrow { color: #087e83; font-size: 9pt; font-weight: 700; text-transform: uppercase; }
+    h1 { font-size: 30pt; line-height: 1.08; margin: 8pt 0 7pt; color: #102a43; }
+    h2 { font-size: 19pt; margin: 0 0 14pt; color: #102a43; }
+    h3 { font-size: 12pt; margin: 14pt 0 5pt; color: #087e83; }
+    p { margin: 5pt 0 9pt; }
+    ul, ol { margin: 5pt 0 12pt; padding-left: 21pt; }
+    li { margin: 4pt 0; }
+    .lede { font-size: 13pt; color: #40566b; max-width: 6.8in; }
+    .band { background: #edf7f5; border-left: 4px solid #087e83; padding: 10pt 12pt; margin: 12pt 0; }
+    .warning { background: #fff6e7; border-left: 4px solid #d48a1f; padding: 9pt 12pt; margin: 10pt 0; }
+    .step { display: inline-block; width: 23pt; height: 23pt; border-radius: 50%; background: #087e83; color: white; text-align: center; line-height: 23pt; font-weight: 700; margin-right: 5pt; }
+    .code { font-family: Consolas, monospace; font-size: 9.5pt; background: #f2f5f7; border: 1px solid #d7e0e5; padding: 9pt 11pt; white-space: pre-wrap; overflow-wrap: anywhere; margin: 7pt 0 11pt; }
+    .small { color: #526679; font-size: 9.5pt; }
+    .footer { border-top: 1px solid #d7e0e5; padding-top: 5pt; margin-top: 12pt; color: #617487; font-size: 8.5pt; }
+    table { width: 100%; border-collapse: collapse; margin: 10pt 0; font-size: 10pt; }
+    th, td { text-align: left; vertical-align: top; border-bottom: 1px solid #d7e0e5; padding: 7pt; }
+    th { color: #087e83; }
+    @page { size: Letter; margin: 0.62in 0.72in 0.6in; }
+    @media print {
+      body { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+      a { color: inherit; text-decoration: none; }
+    }
+  </style>
+</head>
+<body>
+  <section class="page">
+    <div class="eyebrow">Windows setup guide</div>
+    <h1>Pega QA<br>Job Digest</h1>
+    <p class="lede">Configure LinkedIn job alerts, connect an Outlook mailbox, and schedule a new-jobs-only digest for 10:00 PM each day.</p>
+
+    <div class="band"><strong>What this utility does</strong><br>Reads LinkedIn alert emails from Outlook, filters for Pega QA Engineer roles, and emails job links for you to review. It does not scrape LinkedIn or submit applications.</div>
+
+    <h3><span class="step">1</span> Create a LinkedIn alert</h3>
+    <ol>
+      <li>Open LinkedIn Jobs and search for <strong>Pega QA Engineer</strong>.</li>
+      <li>Choose your preferred location and any other search filters.</li>
+      <li>Turn on the job alert, then open <strong>Manage alerts</strong>.</li>
+      <li>Set frequency to <strong>Daily</strong> and delivery to <strong>Email</strong>. Send it to the Outlook inbox this utility will read.</li>
+    </ol>
+
+    <h3>How the role filter works</h3>
+    <ul>
+      <li>Requires Pega and a QA, quality assurance, or test-engineer title.</li>
+      <li>Includes a listing as a match when its alert text explicitly describes basic or limited automation experience.</li>
+      <li>Excludes clear automation-heavy requirements. Unclear requirements go into a review section.</li>
+    </ul>
+
+    <div class="warning"><strong>New jobs:</strong> the first run checks alerts received in the previous 24 hours. Later runs check since the last successful digest and skip job links already emailed. LinkedIn alerts may omit the original posting date, so “new” means a previously unseen link, not a verified posting date.</div>
+
+    <div class="footer">Pega QA Job Digest | Setup and daily operation</div>
+  </section>
+
+  <section class="page">
+    <div class="eyebrow">Account connection</div>
+    <h2>2. Register the Microsoft app</h2>
+    <ol>
+      <li>Open <strong>entra.microsoft.com</strong> and select <strong>App registrations</strong> &gt; <strong>New registration</strong>.</li>
+      <li>Name it <strong>Pega QA Job Digest</strong>. For an Outlook.com account, select <strong>Accounts in any organizational directory and personal Microsoft accounts</strong>. For a work account, choose the account type required by your organization.</li>
+      <li>After registration, open <strong>Authentication</strong> &gt; <strong>Advanced settings</strong>, set <strong>Allow public client flows</strong> to <strong>Yes</strong>, and save.</li>
+      <li>Open <strong>API permissions</strong> &gt; <strong>Add a permission</strong> &gt; <strong>Microsoft Graph</strong> &gt; <strong>Delegated permissions</strong>. Add <strong>Mail.Read</strong> and <strong>Mail.Send</strong>.</li>
+      <li>Copy the <strong>Application (client) ID</strong> from the app's Overview page. No client secret is needed.</li>
+    </ol>
+
+    <div class="warning"><strong>Permission scope:</strong> choose Delegated permissions, not Application permissions. The utility reads and sends mail as the signed-in Outlook user. An organization may require an administrator to grant consent.</div>
+
+    <h3><span class="step">3</span> Configure the utility</h3>
+    <p>Open PowerShell in the repository folder and run:</p>
+    <div class="code">cd .\job-digest
+npm install
+Copy-Item .env.example .env</div>
+    <p>Open <strong>job-digest\.env</strong> and set these values:</p>
+    <div class="code">MS_CLIENT_ID=your-application-client-id
+MS_TENANT_ID=common
+DIGEST_EMAIL=your-outlook-address</div>
+    <p class="small">Use the Outlook address that receives the LinkedIn alerts for DIGEST_EMAIL. Keep .env on your computer; it is ignored by Git.</p>
+
+    <h3>Install-script note</h3>
+    <p>If npm says it blocked the keytar install script, run:</p>
+    <div class="code">npm install-scripts approve keytar
+npm rebuild keytar</div>
+    <div class="footer">Microsoft authentication uses a device code and a Windows DPAPI-protected token cache.</div>
+  </section>
+
+  <section class="page">
+    <div class="eyebrow">First run and schedule</div>
+    <h2>4. Sign in and schedule 10 PM</h2>
+    <p>From the <strong>job-digest</strong> folder, run:</p>
+    <div class="code">npm test
+npm start</div>
+    <p>On the first run, the terminal displays a Microsoft sign-in code and instructions. Open the displayed verification page, enter the code, and sign in with the Outlook account that receives the LinkedIn alerts. Approve the requested mail permissions.</p>
+
+    <h3><span class="step">5</span> Register the daily task</h3>
+    <p>After <code>npm start</code> completes successfully, run this from the <strong>job-digest</strong> folder:</p>
+    <div class="code">.\register-task.ps1</div>
+    <p>This registers a Windows Task Scheduler job for <strong>10:00 PM local time every day</strong>, using the current Windows account.</p>
+    <ul>
+      <li>The PC must be awake and that Windows user logged in at 10 PM.</li>
+      <li>Run it as the same Windows user who completed device-code sign-in.</li>
+      <li>The task sends a no-new-jobs message when every link has already been shown.</li>
+    </ul>
+
+    <h3>Previously sent jobs</h3>
+    <p>The digest records links it has emailed in <code>%LOCALAPPDATA%\PegaQaJobDigest\job-state.json</code>. Each successful run advances the time window, so later digests do not repeat the same job link.</p>
+
+    <h3>Quick troubleshooting</h3>
+    <table>
+      <tr><th>Problem</th><th>Check</th></tr>
+      <tr><td>Missing configuration</td><td>Confirm .env contains MS_CLIENT_ID and DIGEST_EMAIL.</td></tr>
+      <tr><td>Permission or consent error</td><td>Confirm delegated Mail.Read and Mail.Send were added; ask your organization admin if required.</td></tr>
+      <tr><td>No matching jobs</td><td>Confirm the LinkedIn alert is daily, emailed to this inbox, and the utility is signed into that same account.</td></tr>
+      <tr><td>Task did not run</td><td>Check that the PC was awake and the same Windows user was logged in at 10 PM.</td></tr>
+    </table>
+
+    <div class="footer">The digest provides links for your review; it does not automatically apply for jobs.</div>
+  </section>
+</body>
+</html>
